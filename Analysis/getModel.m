@@ -28,6 +28,8 @@
 %                               'nn'       : a feedforward neural net
 %            .polynomial   : (int) order of poly nonlinearity (if nonexistent or
 %                               0, it won't add the nonlinearity)
+%            .nonlinear    : (int) array of indeces in in_signals for which to apply
+%                               nonlinearity before inputting into glm
 %            .model_name   : (string) unique name for this model fit
 %            .in_signals   : (cell) GLM inputs in form {'name',idx; 'name',idx};
 %            .out_signals  : (cell) GLM outputs in form {'name',idx}
@@ -61,6 +63,9 @@ in_signals    =  {}; % {'name',idx; 'name',idx};
 out_signals   =  {}; % {'name',idx};
 train_idx     =  1:length(trial_data);
 polynomial    =  0; % order of cascaded nonlinearity
+nonlinearIdx  =  [];
+nonlinearExp  =  [];
+muscLen0      =  1;
 % GLM-specific parameters
 do_lasso      =  false;
 lasso_lambda  =  0;
@@ -97,6 +102,15 @@ if isempty(b) && isempty(net)  % fit a new model
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % build inputs and outputs for training
     x = get_vars(trial_data(train_idx),in_signals);
+    %normalize input variables (for musc len,vel,etc), default is 1 so
+    %won't affect inputs if L0 is not specified
+    x = x./muscLen0;
+    %apply non-linearity if specified
+    if isempty(nonlinearIdx) == 0
+        for i=1:length(nonlinearIdx)
+            x(:,nonlinearIdx(i)) = sign(x(:,nonlinearIdx(i))).*(abs(x(:,nonlinearIdx(i)))).^nonlinearExp(i);
+        end
+    end
     y = get_vars(trial_data(train_idx),out_signals);
     
     if any(any(isnan(x))) | any(any(isnan(y)))
@@ -128,7 +142,7 @@ if isempty(b) && isempty(net)  % fit a new model
                         error('This glm_distribution has not been implemented')
                     end
                 else
-                    [b(:,iVar),~,s_temp] = glmfit(x,y(:,iVar),glm_distribution);
+                    [b(:,iVar),~,s_temp] = glmfit (x,y(:,iVar),glm_distribution);
                     if strcmp(glm_distribution, 'poisson')
                         yfit(:,iVar) = exp([ones(size(x,1),1), x]*b(:,iVar));                    
                     elseif strcmp(glm_distribution, 'normal')
@@ -185,6 +199,16 @@ end
 if add_pred_to_td
     for trial = 1:length(trial_data)
         x  = get_vars(trial_data(trial),in_signals);
+        %normalize input variables (for musc len,vel,etc), default is 1 so
+        %won't affect inputs if L0 is not specified
+        x = x./muscLen0;
+        %apply non-linearity if specified
+        if isempty(nonlinearIdx) == 0
+            for i=1:length(nonlinearIdx)
+                x(:,nonlinearIdx(i)) = sign(x(:,nonlinearIdx(i))).*(abs(x(:,nonlinearIdx(i)))).^nonlinearExp(i);
+            end
+        end
+        
         y  = get_vars(trial_data(trial),out_signals);
         
         yfit = zeros(size(x,1),size(b,2));
