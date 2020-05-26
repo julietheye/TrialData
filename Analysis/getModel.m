@@ -102,15 +102,15 @@ if isempty(b) && isempty(net)  % fit a new model
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % build inputs and outputs for training
     x = get_vars(trial_data(train_idx),in_signals);
-    %normalize input variables (for musc len,vel,etc), default is 1 so
-    %won't affect inputs if L0 is not specified
-    x = x./muscLen0;
-    %apply non-linearity if specified
-    if isempty(nonlinearIdx) == 0
-        for i=1:length(nonlinearIdx)
-            x(:,nonlinearIdx(i)) = sign(x(:,nonlinearIdx(i))).*(abs(x(:,nonlinearIdx(i)))).^nonlinearExp(i);
-        end
-    end
+%     %normalize input variables (for musc len,vel,etc), default is 1 so
+%     %won't affect inputs if L0 is not specified
+%     x = x./muscLen0;
+%     %apply non-linearity if specified
+%     if isempty(nonlinearIdx) == 0
+%         for i=1:length(nonlinearIdx)
+%             x(:,nonlinearIdx(i)) = sign(x(:,nonlinearIdx(i))).*(abs(x(:,nonlinearIdx(i)))).^nonlinearExp(i);
+%         end
+%     end
     y = get_vars(trial_data(train_idx),out_signals);
     
     if any(any(isnan(x))) | any(any(isnan(y)))
@@ -199,15 +199,15 @@ end
 if add_pred_to_td
     for trial = 1:length(trial_data)
         x  = get_vars(trial_data(trial),in_signals);
-        %normalize input variables (for musc len,vel,etc), default is 1 so
-        %won't affect inputs if L0 is not specified
-        x = x./muscLen0;
-        %apply non-linearity if specified
-        if isempty(nonlinearIdx) == 0
-            for i=1:length(nonlinearIdx)
-                x(:,nonlinearIdx(i)) = sign(x(:,nonlinearIdx(i))).*(abs(x(:,nonlinearIdx(i)))).^nonlinearExp(i);
-            end
-        end
+%         %normalize input variables (for musc len,vel,etc), default is 1 so
+%         %won't affect inputs if L0 is not specified
+%         x = x./muscLen0;
+%         %apply non-linearity if specified
+%         if isempty(nonlinearIdx) == 0
+%             for i=1:length(nonlinearIdx)
+%                 x(:,nonlinearIdx(i)) = sign(x(:,nonlinearIdx(i))).*(abs(x(:,nonlinearIdx(i)))).^nonlinearExp(i);
+%             end
+%         end
         
         y  = get_vars(trial_data(trial),out_signals);
         
